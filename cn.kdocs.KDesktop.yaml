@@ -1,0 +1,135 @@
+id: cn.kdocs.KDesktop
+runtime: org.freedesktop.Platform
+runtime-version: '23.08'
+sdk: org.freedesktop.Sdk
+base: org.electronjs.Electron2.BaseApp
+base-version: '23.08'
+command: kdocs
+separate-locales: false
+
+finish-args:
+  - --share=ipc
+  - --socket=x11
+  - --socket=wayland
+  - --share=network
+  - --socket=pulseaudio
+  - --device=dri
+  - --filesystem=xdg-documents
+  - --filesystem=xdg-config/fontconfig:ro
+  - --talk-name=org.freedesktop.Notifications
+  - --env=GTK_USE_PORTAL=1
+
+cleanup:
+  - /include
+  - /lib/pkgconfig
+  - /man
+  - /share/doc
+  - /share/gtk-doc
+  - /share/man
+  - /share/pkgconfig
+  - '*.la'
+  - '*.a'
+
+modules:
+  - name: lsb-release
+    buildsystem: simple
+    build-commands:
+      - bash lsb_release --all > lsb-release
+      - install -Dm644 lsb-release -t $FLATPAK_DEST/etc/
+    sources:
+      - type: file
+        url: https://gitlab.com/nanonyme/lsb-release-compat/-/raw/5751a93f4cd3885a9c3c92aa86026255851ad670/lsb_release
+        sha256: b2c63d172595f90647f39a32932c12ddf319597e2948403892a27d5f1d92e621
+
+  - name: fontconfig
+    buildsystem: simple
+    build-commands:
+      - install -Dm644 local.conf -t $FLATPAK_DEST/etc/fonts/
+      - install -Dm644 70-noto-cjk.conf -t $FLATPAK_DEST/etc/fonts/conf.d/
+      - install -Dm644 75-noto-color-emoji.conf -t $FLATPAK_DEST/etc/fonts/conf.d/
+    sources:
+      - type: file
+        path: fontconfig/local.conf
+      - type: file
+        path: fontconfig/75-noto-color-emoji.conf
+      - type: file
+        url: https://gitlab.archlinux.org/archlinux/packaging/packages/noto-fonts-cjk/-/raw/5fd3534bf7a6e26c7506dc8f40dcd89f37d35627/70-noto-cjk.conf
+        sha256: 2417ac0e6720fe8da55ee59f16e36cfe96737bc21432460a322bb0f395e3a521
+
+  - name: 7zip
+    buildsystem: simple
+    build-commands:
+      - install -Dm755 7zz -t $FLATPAK_DEST/bin/
+    sources:
+      - type: archive
+        url: https://www.7-zip.org/a/7z2403-linux-x64.tar.xz
+        sha256: 4e7f0dd0a5c380847e9dbf02e64f8b5b70af252e46826e256c092a5a4186a2f2
+        strip-components: 0
+
+  - name: brotli
+    buildsystem: simple
+    build-commands:
+      - bsdtar --to-stdout -xf brotli.deb data.* | bsdtar -xf -
+      - install -Dm755 usr/bin/brotli -t $FLATPAK_DEST/bin/
+    sources:
+      - type: file
+        url: http://http.us.debian.org/debian/pool/main/b/brotli/brotli_1.0.9-2+b6_amd64.deb
+        sha256: ca15fdfb0a589c647159ee6dea4b0468a62998005555b3b56507291b70f61ae1
+        dest-filename: brotli.deb
+
+  - name: electron
+    buildsystem: simple
+    build-commands:
+      - mkdir $FLATPAK_DEST/electron/
+      - unzip electron.zip -d $FLATPAK_DEST/electron/
+      - chmod +x $FLATPAK_DEST/electron/chrome* $FLATPAK_DEST/electron/electron
+
+      # https://github.com/electron/electron/issues/31258#issuecomment-1100867831
+      - mkdir -p $FLATPAK_DEST/lib/
+      - ln -s /usr/lib/x86_64-linux-gnu/libgtk-3.so.0 $FLATPAK_DEST/lib/libgtk-3.so
+    sources:
+      - type: file
+        url: https://github.com/electron/electron/releases/download/v14.2.9/electron-v14.2.9-linux-x64.zip
+        sha256: 0a62a41e8ac4592aba347c82f9c40f3fb4c84c7d00b6bb9501d02375cd49cb7d
+        dest-filename: electron.zip
+
+  - name: kdocs-asar
+    buildsystem: simple
+    build-commands:
+      # - brotli -d kdocs.gz -o app.asar
+      - 7zz e kdocs.dmg -y || true
+      - install -D app.asar $FLATPAK_DEST/lib/app.asar
+    sources:
+      # - type: file
+      #   url: https://qn.cache.wpscdn.cn/kdocs/apk/asar/KDocs_v3.8.9_27b1ac5b9ae8667bc3a59950eb99bca4.gz
+      #   sha256: 3294b6c906e4f007ce1e5a2865672eb423e87cb3ce605a232298c4fe471191a9
+      #   dest-filename: kdocs.gz
+      - type: file
+        url: https://qn.cache.wpscdn.cn/kdocs/apk/kdesktopmac/KDocs_1001_v3.9.7.dmg
+        sha256: 7379f8089eec4149009881a6f56e41b60de5b5327b2cc46137807d63d629acd3
+        dest-filename: kdocs.dmg
+      #   x-checker-data:
+      #     type: html
+      #     url: https://www.kdocs.cn/kdg/api/v1/configure?idList=kdesktopMacVersion
+      #     pattern: (https://[^"]+/KDocs_1001_v([\d\.\-]+).dmg)
+      #     is-main-source: true
+
+  - name: kdocs
+    buildsystem: simple
+    build-commands:
+      - install -Dm644 cn.kdocs.KDesktop.metainfo.xml -t $FLATPAK_DEST/share/metainfo
+      - install -Dm644 cn.kdocs.KDesktop.png -t $FLATPAK_DEST/share/icons/hicolor/256x256/apps
+      - install -Dm644 cn.kdocs.KDesktop.desktop -t $FLATPAK_DEST/share/applications
+      - install -D kdocs.sh $FLATPAK_DEST/bin/kdocs
+      - install -D dpkg.sh $FLATPAK_DEST/bin/dpkg
+    sources:
+      - type: file
+        path: cn.kdocs.KDesktop.metainfo.xml
+      - type: file
+        path: cn.kdocs.KDesktop.png
+      - type: file
+        path: cn.kdocs.KDesktop.desktop
+      - type: file
+        path: kdocs.sh
+      - type: file
+        path: dpkg.sh

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>cn.kdocs.KDesktop</id>
+  <name>KDocs</name>
+  <project_license>LicenseRef-proprietary</project_license>
+  <developer_name>Kingsoft Corp</developer_name>
+  <summary>KDocs</summary>
+  <metadata_license>CC0-1.0</metadata_license>
+  <launchable type="desktop-id">cn.kdocs.KDesktop.desktop</launchable>
+  <url type="homepage">https://kdocs.cn</url>
+  <url type="help">https://kdocs.cn</url>
+  <description>
+    <p>KDocs.</p>
+    <p>NOTE: This wrapper is not verified by, affiliated with, or supported by Kingsoft.</p>
+  </description>
+  <categories>
+    <category>Office</category>
+  </categories>
+  <releases>
+    <release version="3.9.7" date="2023-12-22"/>
+    <release version="3.9.4" date="2023-11-09"/>
+  </releases>
+  <content_rating type="oars-1.1"/>
+</component>

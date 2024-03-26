@@ -1,0 +1,13 @@
+[Desktop Entry]
+Name=金山文档
+Comment=金山文档
+Exec=kdocs %U
+Terminal=false
+StartupNotify=true
+Type=Application
+Icon=cn.kdocs.KDesktop
+StartupWMClass=kdesktop
+Categories=Office;WordProcessor;Utility;
+SingleMainWindow=true
+X-GNOME-SingleWindow=true
+X-SingleMainWindow=true

@@ -15,17 +15,15 @@ jobs:
       - name: Install Flatpak
         run:
           |
-          sudo apt update
-          sudo apt upgrade -y
-          sudo apt install -y flatpak flatpak-builder
+          sudo apt -qq update
+          sudo apt -qq install -y flatpak flatpak-builder
           sudo flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
           sudo flatpak install -y org.freedesktop.Platform//24.08 org.freedesktop.Sdk//24.08 org.electronjs.Electron2.BaseApp//24.08
           git config --global protocol.file.allow always # https://github.com/flatpak/flatpak-builder/issues/495
       - name: Build
         run:
           |
-          flatpak-builder build cn.kdocs.KDesktop.yaml --delete-build-dirs --force-clean 
-          flatpak-builder --repo=repo build cn.kdocs.KDesktop.yaml --force-clean
+          flatpak-builder --repo=repo build cn.kdocs.KDesktop.yaml --delete-build-dirs --force-clean
           flatpak build-bundle ./repo cn.kdocs.KDesktop.flatpak cn.kdocs.KDesktop
       - name: Get current date
         id: date

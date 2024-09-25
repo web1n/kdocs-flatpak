@@ -8,6 +8,7 @@ Type=Application
 Icon=cn.kdocs.KDesktop
 StartupWMClass=kdesktop
 Categories=Office;WordProcessor;Utility;
+Keywords=jinshanwendang,jinshan,wendang,jswd
 SingleMainWindow=true
 X-GNOME-SingleWindow=true
 X-SingleMainWindow=true
